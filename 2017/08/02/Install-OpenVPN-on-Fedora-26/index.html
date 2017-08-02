@@ -6,14 +6,14 @@
   <title>Install OpenVPN on Fedora 26 | </title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="There are serveral tutorials in the internet (this and this). Which describesinstallation process OpenVPN on linux. They both not so applicable for Fedora 26 because from moment they was written it ha">
-<meta name="keywords" content="OpenVPN">
+<meta name="keywords" content="OpenVPN,linux,Fedora">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Install OpenVPN on Fedora 26">
 <meta property="og:url" content="http://chichivica.github.io/2017/08/02/Install-OpenVPN-on-Fedora-26/index.html">
 <meta property="og:site_name">
 <meta property="og:description" content="There are serveral tutorials in the internet (this and this). Which describesinstallation process OpenVPN on linux. They both not so applicable for Fedora 26 because from moment they was written it ha">
 <meta property="og:locale" content="eng">
-<meta property="og:updated_time" content="2017-08-02T08:55:18.546Z">
+<meta property="og:updated_time" content="2017-08-02T09:48:53.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Install OpenVPN on Fedora 26">
 <meta name="twitter:description" content="There are serveral tutorials in the internet (this and this). Which describesinstallation process OpenVPN on linux. They both not so applicable for Fedora 26 because from moment they was written it ha">
@@ -135,15 +135,42 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo sysctl -p</div></pre></td></tr></table></figure>
 <p>12) Set up <code>firewalld</code> to work with <code>OpenVPN</code></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo firewall-cmd --permanent --add-service openvpn</div><div class="line">sudo firewall-cmd --permanent --add-masquerade</div></pre></td></tr></table></figure>
-<p>13) Setup service in order to set up </p>
-
+<p>13) Now we are going to set up our <code>systemd</code> service.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo ln -s /lib/systemd/system/openvpn-server\@.service /etc/systemd/system/multi-user.target.wants/openvpn-server\@server.service</div><div class="line">                                                                                                                    ^^^^^^</div></pre></td></tr></table></figure>
+<h4 id="NB-server-corresponts-with-the-configuration-file-name-in-etc-openvpn-server-such-as-server-conf-So-if-you-have-myserver-conf-you-have-to-replace-server-with-myserver"><a href="#NB-server-corresponts-with-the-configuration-file-name-in-etc-openvpn-server-such-as-server-conf-So-if-you-have-myserver-conf-you-have-to-replace-server-with-myserver" class="headerlink" title="NB! server corresponts with the configuration file name in /etc/openvpn/server such as server.conf. So if you have myserver.conf you have to replace server with myserver"></a>NB! <code>server</code> corresponts with the configuration file name in /etc/openvpn/server such as server.conf. So if you have <code>myserver.conf</code> you have to replace <code>server</code> with <code>myserver</code></h4><p>14) Now we are ready to start <code>OpenVPN</code> service</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo systemctl -f enable openvpn-server@server.service</div><div class="line">sudo systemctl start openvpn-server@server.service</div></pre></td></tr></table></figure>
+<p>Done! We successfully deployed our OpenVPN server, and we are ready to move on and set up the client</p>
+<hr>
+<h2 id="Client-setup"><a href="#Client-setup" class="headerlink" title="Client setup"></a>Client setup</h2><p>As you remember we have already generated <code>client1.crt</code> and <code>client1.key</code> at the <strong>step 5</strong>. And now we need combine them with our general Certificates of Authority in order to build client config file.</p>
+<p>1) First of all we need generate Client Configurations. Lets create <code>client-configs</code> directory and prepare with the keys</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">mkdir ~/client-configs</div><div class="line"><span class="built_in">cd</span> ~/client-configs</div><div class="line">mkdir ~/keys</div><div class="line">cp ~/openvpn-ca/pki/ca.crt ~/client-configs/keys</div><div class="line">cp ~/openvpn-ca/pki/ta.key ~/client-configs/keys</div><div class="line">cp ~/openvpn-ca/pki/private/client1.key ~/client-configs/keys</div><div class="line">cp ~/openvpn-ca/pki/private/client1.crt ~/client-configs/keys</div></pre></td></tr></table></figure>
+<p>2) Next we need to copy base configuration from examples</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cp /usr/share/doc/openvpn/sample/sample-config-files/client.conf ~/client-configs/base.conf</div></pre></td></tr></table></figure>
+<p>3) Open this file in your text editor<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">nano ~/client-configs/base.conf</div></pre></td></tr></table></figure></p>
+<p>4) and modify as following</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">remote server_IP_address 1194 <span class="comment">#place your server address here</span></div><div class="line">proto udp <span class="comment"># update with specified protocol</span></div></pre></td></tr></table></figure>
+<p>next uncomment (by removing <code>;</code>)<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">user nobody</div><div class="line">group nogroup</div></pre></td></tr></table></figure></p>
+<h5 id="NB-If-you-are-using-CentOS-change-the-group-from-nogroup-to-nobody-to-match-the-distribution’s-available-groups"><a href="#NB-If-you-are-using-CentOS-change-the-group-from-nogroup-to-nobody-to-match-the-distribution’s-available-groups" class="headerlink" title="NB: If you are using CentOS, change the group from nogroup to nobody to match the distribution’s available groups"></a>NB: If you are using CentOS, change the <code>group</code> from <code>nogroup</code> to <code>nobody</code> to match the distribution’s available groups</h5><p>and comment out the lines because we place them directly in client’s config</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment">#ca ca.crt</span></div><div class="line"><span class="comment">#cert client.crt</span></div><div class="line"><span class="comment">#key client.ke</span></div></pre></td></tr></table></figure>
+<p>add this lines at the end of the file<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">auth SHA256</div><div class="line">key-direction 1</div></pre></td></tr></table></figure></p>
+<p>5) Next, we will create a simple script to compile our base configuration with the relevant certificate, key, and encryption files. This will place the generated configuration in the <code>~/client-configs/</code> files directory.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">nano ~/client-configs/make_config.sh</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">BASE_CONFIG=~/client-configs/base.conf</div><div class="line">KEY_DIR=~/client-configs/keys</div><div class="line">OUTPUT_DIR=~/client-configs</div><div class="line"></div><div class="line">cat <span class="variable">$&#123;BASE_CONFIG&#125;</span> \</div><div class="line">    &lt;(<span class="built_in">echo</span> -e <span class="string">'&lt;ca&gt;'</span>) \</div><div class="line">    <span class="variable">$&#123;KEY_DIR&#125;</span>/ca.crt \</div><div class="line">    &lt;(<span class="built_in">echo</span> -e <span class="string">'&lt;/ca&gt;\n&lt;cert&gt;'</span>) \</div><div class="line">    <span class="variable">$&#123;KEY_DIR&#125;</span>/<span class="variable">$&#123;1&#125;</span>.crt \</div><div class="line">    &lt;(<span class="built_in">echo</span> -e <span class="string">'&lt;/cert&gt;\n&lt;key&gt;'</span>) \</div><div class="line">    <span class="variable">$&#123;KEY_DIR&#125;</span>/<span class="variable">$&#123;1&#125;</span>.key \</div><div class="line">    &lt;(<span class="built_in">echo</span> -e <span class="string">'&lt;/key&gt;\n&lt;tls-auth&gt;'</span>) \</div><div class="line">    <span class="variable">$&#123;KEY_DIR&#125;</span>/ta.key \</div><div class="line">    &lt;(<span class="built_in">echo</span> -e <span class="string">'&lt;/tls-auth&gt;'</span>) \</div><div class="line">    &gt; <span class="variable">$&#123;OUTPUT_DIR&#125;</span>/<span class="variable">$&#123;1&#125;</span>.ovpn</div></pre></td></tr></table></figure>
+<p>make that file executable </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">chmod 700 ~/client-configs/make_config.sh</div></pre></td></tr></table></figure>
+<p>6) Execute that file with <code>client1</code> input parameter</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">./make_config.sh client1</div></pre></td></tr></table></figure>
+<p>If everything went well, we should have a client1.ovpn file in our <code>~/client-configs/</code> directory</p>
+<p>7) Now that file can be used on the client machine </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo dnf install openvpn</div><div class="line">sudo openvpn --config client1.ovpn</div></pre></td></tr></table></figure>
+<h2 id="That’s-it"><a href="#That’s-it" class="headerlink" title="That’s it!"></a>That’s it!</h2>
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://chichivica.github.io/2017/08/02/Install-OpenVPN-on-Fedora-26/" data-id="cj5us4tfs0000uqpvszzrqh21" class="article-share-link">Partager</a>
+      <a data-url="http://chichivica.github.io/2017/08/02/Install-OpenVPN-on-Fedora-26/" data-id="cj5utzyqb0000v4pvcwnxkgzs" class="article-share-link">Partager</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenVPN/">OpenVPN</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Fedora/">Fedora</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenVPN/">OpenVPN</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li></ul>
 
     </footer>
   </div>
@@ -163,7 +190,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Mot-clés</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenVPN/">OpenVPN</a></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Fedora/">Fedora</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OpenVPN/">OpenVPN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linux/">linux</a></li></ul>
     </div>
   </div>
 
@@ -173,7 +200,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Nuage de mot-clés</h3>
     <div class="widget tagcloud">
-      <a href="/tags/OpenVPN/" style="font-size: 10px;">OpenVPN</a>
+      <a href="/tags/Fedora/" style="font-size: 10px;">Fedora</a> <a href="/tags/OpenVPN/" style="font-size: 10px;">OpenVPN</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a>
     </div>
   </div>
 

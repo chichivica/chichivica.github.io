@@ -1,0 +1,186 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>talalaev blog</title>
+  <meta name="author" content="Ivan Talalaev">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+  <meta property="og:site_name" content="talalaev blog"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="talalaev blog" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  
+
+</head>
+
+
+<body>
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">talalaev blog</a></h1>
+  <h2><a href="/"></a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">Home</a></li>
+    
+      <li><a href="/archives">Archives</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper">
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
+        <time datetime="2017-08-02T07:48:13.000Z"><a href="/2017/08/02/Install-OpenVPN-on-Fedora-26/">2017-08-02</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2017/08/02/Install-OpenVPN-on-Fedora-26/">Install OpenVPN on Fedora 26</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>There are serveral tutorials in the internet (<a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-an-openvpn-server-on-ubuntu-16-04" target="_blank" rel="external">this</a> and <a href="https://fedoraproject.org/wiki/Openvpn#Setting_up_an_OpenVPN_server" target="_blank" rel="external">this</a>). Which describes </p>
+<p> They both not so applicable for Fedora 26 because from moment they was written it has been several years and there are many discrepancies. </p>
+<p>But I ended them up and faced several issues:</p>
+<ul>
+<li>Why I can ping but cannot access internet/local network behind the vpn server?</li>
+<li>Where keys should be placed? </li>
+<li>how to use Easy-RSA v3 instead v2?</li>
+<li>how to omit password on service start up?</li>
+</ul>
+<hr>
+<p>1) First of all install necessary dependencies</p>
+<pre><code>sudo dnf install openvpn easy-rsa
+</code></pre><p>2) Copy rsa scripts to the home folder</p>
+<pre><code>cp -ai /usr/share/easy-rsa/3/* ~/openvpn-ca
+cd ~/rsa
+</code></pre><p>3) According to <a href="https://community.openvpn.net/openvpn/wiki/EasyRSA3-OpenVPN-Howto" target="_blank" rel="external">this</a> start a new PKI and build a CA keypair/cert</p>
+<pre><code>./easyrsa init-pki
+./easyrsa build-ca nopass
+</code></pre><p>4) Build Server certificate, key</p>
+<pre><code>./easyrsa build-server-full server nopass
+</code></pre><p>5) Build Client certificate, key</p>
+<pre><code>    ./easyrsa build-client-full client1 nopass
+
+_you can omitt `nopass` on steps 3,4,5 if you need to_
+</code></pre><p>6) Generate a strong Diffie-Hellman keys</p>
+<pre><code>./easyrsa gen-dh
+</code></pre><p>7) Generate HMAC signature to strengthen the server’s TLS integrity verification capabilities</p>
+<pre><code>openvpn --genkey --secret pki/ta.key
+</code></pre><p>8) Before openvpn server setting up we need to put appropriate keys <code>ca.crt ca.key server.crt server.key ta.key dh.pem</code> into <code>/etc/openvpn/server/keys</code> folder</p>
+<pre><code>sudo cp ~/openvpn-ca/pki/issued/server.crt /etc/openvpn/server
+sudo cp ~/openvpn-ca/pki/private/server.key /etc/openvpn/server
+sudo cp ~/openvpn-ca/pki/private/ca.key /etc/openvpn/server
+sudo cp ~/openvpn-ca/pki/ca.crt /etc/openvpn/server
+sudo cp ~/openvpn-ca/pki/dh.pem /etc/openvpn/server
+sudo cp ~/openvpn-ca/pki/ta.key /etc/openvpn/server
+</code></pre><p>9) Now we need to set up the server itself, firstly copy configurations</p>
+<pre><code>sudo cp /usr/share/doc/openvpn/sample/sample-config-files/server.conf \
+/etc/openvpn/server
+</code></pre><p>10) Modify several lines in that configuration file</p>
+<p>   <em>add this lines at the end of the file:</em></p>
+<pre><code>key-direction 0
+auth SHA256
+</code></pre><p>   <em>remove <code>;</code> symbol to uncomment following lines</em></p>
+<pre><code>user nobody
+group nogroup
+</code></pre><p>10’)<strong>[optional]</strong> In order to to Redirect All Traffic Through the VPN, remove <code>;</code> from following lines</p>
+<pre><code>push &quot;redirect-gateway def1 bypass-dhcp&quot;
+push &quot;dhcp-option DNS 208.67.222.222&quot;
+push &quot;dhcp-option DNS 208.67.220.220&quot;
+</code></pre><p>10’’)<strong>[optional]</strong> Adjust port and protocol if you don’t wish to use default </p>
+<pre><code>port 443
+proto tcp 
+</code></pre><p>and if you have <code>server.crt</code> and <code>server.key</code> with the different name point to them here </p>
+<pre><code>cert myservername.crt
+key myservername.key
+</code></pre><p>11) Allow IP Forwarding. This is fairly essential to the functionality we want our VPN server to provide.</p>
+<pre><code>sudo nano /etc/sysctl.conf
+</code></pre><p>and drop a line</p>
+<pre><code>net.ipv4.ip_forward=1
+</code></pre><p>activate that:</p>
+<pre><code>sudo sysctl -p    
+</code></pre><p>12) Set up <code>firewalld</code> to work with <code>OpenVPN</code></p>
+<pre><code>sudo firewall-cmd --permanent --add-service openvpn
+sudo firewall-cmd --permanent --add-masquerade
+</code></pre><p>13) Setup service</p>
+
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+
+<nav id="pagination">
+  
+  
+  <div class="clearfix"></div>
+</nav></div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="Suche">
+    <input type="hidden" name="q" value="site:chichivica.github.io">
+  </form>
+</div>
+
+  
+
+  
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2017 Ivan Talalaev
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+</body>
+</html>

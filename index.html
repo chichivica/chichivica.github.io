@@ -73,6 +73,55 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-irregular-verbs-goldendict-lsd-dsl" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/10/13/irregular-verbs-goldendict-lsd-dsl/" class="article-date">
+  <time datetime="2017-10-13T09:32:01.000Z" itemprop="datePublished">13-10-2017</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/10/13/irregular-verbs-goldendict-lsd-dsl/">Irregular verbs dictionary for Goldendict</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Irregular-verbs-dictionary-LSD-DSL"><a href="#Irregular-verbs-dictionary-LSD-DSL" class="headerlink" title="Irregular verbs dictionary LSD, DSL"></a>Irregular verbs dictionary LSD, DSL</h1><p><a href="https://dic.1963.ru/rec/194" target="_blank" rel="external">Here is</a> irregular verbs dictionary made by <strong>Igor Mostitsky</strong> which contains:</p>
+<p><em>More than 500 irregular verbs; more than 300 verbs have translations (English to Russian actually). Most important for learning verbs have specific mark (importance rate):</em> <img src="https://i.imgur.com/lPNampD.png" alt=""><br><em>one bold point corresponds to one rank level. 5 is the highest rank. Most popular verbs has transcription.</em></p>
+<h2 id="Here-are-two-links-to-download-either-DSL-or-LSD-files"><a href="#Here-are-two-links-to-download-either-DSL-or-LSD-files" class="headerlink" title="Here are two links to download either DSL or LSD files"></a>Here are two links to download either DSL or LSD files</h2><ul>
+<li>Original archive <a href="https://yadi.sk/d/h6qf4Mp63NidmA" target="_blank" rel="external">En-Ru_Most_Irregular_Verbs_v_2_1_LSD_x5.zip</a> contains <strong>*.ann</strong> <strong>*.lsd</strong> and <strong>*.dsl.files.zip</strong></li>
+<li>Coverted files in <a href="https://yadi.sk/d/pqW29EQm3Nie7E" target="_blank" rel="external">Most_Irregular_Verbs.tar</a> <strong>*.ann</strong> <strong>*.bmp</strong> <strong>*.dsl</strong> and  dsl compressed file <strong>*.dsl.dz</strong> which has the same content as <strong>*.dsl</strong></li>
+</ul>
+<p><strong>NB:</strong> *.lsd binary format intended for AbbyLingvo x5 and could not be used with GoldenDict desktop version only in mobile.</p>
+<h2 id="Convertion"><a href="#Convertion" class="headerlink" title="Convertion"></a>Convertion</h2><p>In order to convert <strong>*.lsd</strong> AbbyLingvo binary file I used cool <a href="https://github.com/sv99/lsdreader" target="_blank" rel="external">lsdreader</a> project (python2 applicable):</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">pip2 install lingvoreader</div><div class="line">lsdreader -i En-Ru_Most_Irregular_Verbs.lsd -o decoded/</div></pre></td></tr></table></figure>
+<p>In order to compress generated <strong>DSL</strong> to <strong>*.dsl.dz</strong> file i used <a href="https://linux.die.net/man/1/dictzip" target="_blank" rel="external">dictzip</a> executable which supplied in apt-get in Debian</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo apt-get install dictzip</div><div class="line">dictzip En-Ru_Most_Irregular_Verbs.dsl</div></pre></td></tr></table></figure>
+<p>will produce En-Ru_Most_Irregular_Verbs.dsl.dz</p>
+<p><a href="https://github.com/goldendict/goldendict/wiki/Supported-Dictionary-Formats" target="_blank" rel="external">Here is</a> comprehensive list of supported by GoldenDict formats</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://chichivica.github.io/2017/10/13/irregular-verbs-goldendict-lsd-dsl/" data-id="cj8pq7lwj0000sjpvijkqemc5" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-Install-OpenVPN-on-Fedora-26" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2017/08/02/Install-OpenVPN-on-Fedora-26/" class="article-date">
@@ -175,7 +224,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://chichivica.github.io/2017/08/02/Install-OpenVPN-on-Fedora-26/" data-id="cj8foadps00003epvdb4jqyti" class="article-share-link">Share</a>
+      <a data-url="http://chichivica.github.io/2017/08/02/Install-OpenVPN-on-Fedora-26/" data-id="cj8pq7lwv0001sjpv5t0vqwju" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Fedora/">Fedora</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenVPN/">OpenVPN</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/linux/">linux</a></li></ul>
@@ -218,7 +267,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">October 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li></ul>
     </div>
   </div>
 
@@ -229,6 +278,10 @@
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2017/10/13/irregular-verbs-goldendict-lsd-dsl/">Irregular verbs dictionary for Goldendict</a>
+          </li>
         
           <li>
             <a href="/2017/08/02/Install-OpenVPN-on-Fedora-26/">Install OpenVPN on Fedora 26</a>
